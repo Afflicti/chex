@@ -41,13 +41,6 @@ bool file_exists(const char *filename)
 // parse args
 int parseArguments(int argc, char **argv, struct data *currentData)
 {
-    printf("Number of Arguments: %d, Arguments: ", argc);
-    for (int i = 0; i < argc; i++ )
-    {
-        printf("%s ", argv[i]);
-    }
-    printf("\n");
-
     if (argc == 2 && strcmp(argv[1], "-h") == 0)
     {
         printf("TODO PRINT HELP\n");
@@ -70,8 +63,6 @@ int parseArguments(int argc, char **argv, struct data *currentData)
     {
         if (strcmp(argv[i], "-f") == 0)
         {
-            printf("File to read: %s \n", argv[i+1]);
-
             strcpy(currentData->filepath, argv[i+1]);
         }
         else if (strcmp(argv[i], "-s") == 0)
@@ -98,11 +89,38 @@ int parseArguments(int argc, char **argv, struct data *currentData)
     return OK;
 }
 
+
+void setTerminalColor(long character)
+{
+    // color for numbers
+    if (character >= 0x30 && character <= 0x39)
+    {
+        printf(BLU);
+    }
+    // color for alpha
+    else if ((character >= 0x41 && character <= 0x5A) || (character >= 0x61 && character <= 0x7A))
+    {
+        printf(MAG);
+    }
+    else
+    {
+        printf(CYN);
+    }
+}
+
+void resetTerminalColor()
+{
+    printf(RESET);
+}
+
 // display the line of hex, but make it nice
 int displayLine(char *line)
 {
     char strByte[2];
     long int DataLen = 0;
+
+
+    printf("| ");
 
     // byte count
     memcpy(strByte, &line[1], 2);
@@ -123,8 +141,14 @@ int displayLine(char *line)
     for (int i = 9; i < (DataLen * 2) + 8; i = i + 2)
     {
         memcpy(strByte, &line[i], 2);
-        printf("%02X ", strtol(strByte, NULL, 16));
+        long character = 0;
+        character = strtol(strByte, NULL, 16);
 
+        setTerminalColor(character);
+
+        printf("%02X ", character);
+
+        resetTerminalColor();
     }
 
     // fill the rest data empty
@@ -136,13 +160,23 @@ int displayLine(char *line)
 
     // CS
     memcpy(strByte, &line[41], 2);
-    printf("| %02X || ", strtol(strByte, NULL, 16));
+
+    // right now make checksum green. But later it should be Green or RED (depends if the checksum is correct)
+    printf("| ");
+
+    printf(GRN);
+    printf("%02X", strtol(strByte, NULL, 16));
+    resetTerminalColor();
+
+    printf(" | ");
 
     for (int i = 9; i < (DataLen * 2) + 8; i = i + 2)
     {
         memcpy(strByte, &line[i], 2);
-        long int character = 0;
+        long character = 0;
         character = strtol(strByte, NULL, 16);
+
+        setTerminalColor(character);
 
         //skip problematic chars
         if ((character >= 0x00 && character <= 0x20) || character == 0x7F || character == 0xFF || character == 0xF0)
@@ -153,6 +187,8 @@ int displayLine(char *line)
         {
             printf("%c ", character);
         }
+
+        resetTerminalColor();
     }
 
     // fill the rest cahracters empty
@@ -162,8 +198,7 @@ int displayLine(char *line)
         printf("  ", strtol(strByte, NULL, 16));
     }
 
-    printf("|");
-    printf("\n");
+    printf("|\n");
 
     return OK;
 }
