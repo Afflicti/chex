@@ -14,6 +14,14 @@
 #define WHT   "\x1B[37m"
 #define RESET "\x1B[0m"
 
+// table characters
+#define V_LINE 0xB3
+#define H_LINE 0xC4
+#define TL_CORNER 0xDA
+#define TR_CORNER 0xBF
+#define BL_CORNER 0xC0
+#define BR_CORNER 0xD9
+
 // error enum
 enum response
 {
@@ -119,9 +127,9 @@ int displayLine(char *line)
     char strByte[2];
     long int DataLen = 0;
 
+    printf("%c ", V_LINE);
 
-    printf("| ");
-
+    printf(YEL);
     // byte count
     memcpy(strByte, &line[1], 2);
     DataLen = strtol(strByte, NULL, 16);
@@ -135,7 +143,10 @@ int displayLine(char *line)
 
     // record type
     memcpy(strByte, &line[7], 2);
-    printf(" %02X | ", strtol(strByte, NULL, 16));
+    printf(" %02X ", strtol(strByte, NULL, 16));
+
+    resetTerminalColor();
+    printf("%c ", V_LINE);
 
     // data
     for (int i = 9; i < (DataLen * 2) + 8; i = i + 2)
@@ -162,13 +173,13 @@ int displayLine(char *line)
     memcpy(strByte, &line[41], 2);
 
     // right now make checksum green. But later it should be Green or RED (depends if the checksum is correct)
-    printf("| ");
+    printf("%c ", V_LINE);
 
     printf(GRN);
     printf("%02X", strtol(strByte, NULL, 16));
     resetTerminalColor();
 
-    printf(" | ");
+    printf(" %c ", V_LINE);
 
     for (int i = 9; i < (DataLen * 2) + 8; i = i + 2)
     {
@@ -198,9 +209,29 @@ int displayLine(char *line)
         printf("  ", strtol(strByte, NULL, 16));
     }
 
-    printf("|\n");
+    printf("%c\n", V_LINE);
 
     return OK;
+}
+
+void printTopOfTable()
+{
+    printf("%c", TL_CORNER);
+        for(int i = 0; i < 101; i++ )
+        {
+            printf("%c", H_LINE);
+        }
+    printf("%c\n", TR_CORNER);
+}
+
+void printBottomOfTable()
+{
+    printf("%c", BL_CORNER);
+        for(int i = 0; i < 101; i++ )
+        {
+            printf("%c", H_LINE);
+        }
+    printf("%c\n", BR_CORNER);
 }
 
 // reads lines of hex file one by one and display content to terminal
@@ -213,16 +244,30 @@ int displayContentFromData(struct data *currentData)
 
     if (fptr != NULL) {
 
+        printTopOfTable();
+
         while (fgets(line, sizeof(line), fptr)) 
         {
             displayLine(line);
             memset(line, 0x00, 45);
         }
 
+        printBottomOfTable();
+
         fclose(fptr);
     }
 
     return OK;
+}
+
+void Helper_PrintASCI()
+{
+    printf("ASCI HELPER:\n\n");
+    for (int i = 0; i < 256; i++)
+    {
+        printf("%x-%c  ", i, i);
+    }
+    printf("\n");
 }
 
 // main...
@@ -240,6 +285,8 @@ int main(int argc, char **argv)
         return 0;
     }
 
+    //Helper_PrintASCI();
+    
     return 0;
 }
 

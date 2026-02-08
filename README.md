@@ -21,7 +21,6 @@ I use gcc, so I do it like this:
 ## todo:
 - create help -h 
 - create option to add start and end address to display only part of hex file
-- polish coloring of output
 - check if checksum is correct
 - print "metadata" of the hexfile
 - add header to describe colums in the hexfile
