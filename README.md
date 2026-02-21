@@ -19,8 +19,8 @@ I use gcc, so I do it like this:
 
 
 ## todo:
-- create help -h 
 - create option to add start and end address to display only part of hex file
 - check if checksum is correct
 - print "metadata" of the hexfile
 - add header to describe colums in the hexfile
+- check if the file is really a hexfile

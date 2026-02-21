@@ -40,6 +40,60 @@ struct data
     uint64_t endAddres;
 };
 
+void setTerminalColor(uint8_t character)
+{
+    // color for numbers
+    if (character >= 0x30 && character <= 0x39)
+    {
+        printf(BLU);
+    }
+    // color for alpha
+    else if ((character >= 0x41 && character <= 0x5A) || (character >= 0x61 && character <= 0x7A))
+    {
+        printf(MAG);
+    }
+    else
+    {
+        printf(CYN);
+    }
+}
+
+void resetTerminalColor()
+{
+    printf(RESET);
+}
+
+void printTopOfTable()
+{
+    printf("%c", TL_CORNER);
+        for(uint8_t i = 0; i < 101; i++ )
+        {
+            printf("%c", H_LINE);
+        }
+    printf("%c\n", TR_CORNER);
+}
+
+void printBottomOfTable()
+{
+    printf("%c", BL_CORNER);
+        for(uint8_t i = 0; i < 101; i++ )
+        {
+            printf("%c", H_LINE);
+        }
+    printf("%c\n", BR_CORNER);
+}
+
+// just a helper function to see all the characters
+void Helper_PrintASCII()
+{
+    printf("ASCI HELPER:\n\n");
+    for (uint8_t i = 0; i < 256; i++)
+    {
+        printf("%x-%c  ", i, i);
+    }
+    printf("\n");
+}
+
 // i was supposed to use this somewhere, but I did not... ¯\_(ツ)_/¯
 bool file_exists(const uint8_t *filename)
 {
@@ -52,22 +106,31 @@ uint8_t parseArguments(int argc, uint8_t **argv, struct data *currentData)
 {
     if (argc == 2 && strcmp(argv[1], "-h") == 0)
     {
-        printf("TODO PRINT HELP\n");
+        printf("usage: chex [arg]\nOptions:\n");
+        printf("-h\t\t: prints help\n");
+        printf("-f filepath\t: choose hexfile to display\n");
+        printf("-s address\t: displays hexfile from this address (default: None)\n");
+        printf("-e address\t: displays hexfile to this address (default: None)\n");
+        printf("-m bool\t\t: display  metadata of a hexfile (default: False)\n");
+
         return NOT_OK;
     }
 
+    // check if there are some arguments
     if (argc == 1)
     {
         printf("No arguments provided. Try -h for help.\n");
         return NOT_OK;
     }
 
+    // check if there is enough arguments. There will be always odd number of arguments
     if (argc % 2 == 0)
     {
         printf("Wrong number of arguments. Try -h for help.\n");
         return NOT_OK;
     }
 
+    // parse arguments into curentData structure
     for (uint8_t i = 1; i < argc; i=i+2 )
     {
         if (strcmp(argv[i], "-f") == 0)
@@ -98,43 +161,19 @@ uint8_t parseArguments(int argc, uint8_t **argv, struct data *currentData)
     return OK;
 }
 
-
-void setTerminalColor(uint8_t character)
-{
-    // color for numbers
-    if (character >= 0x30 && character <= 0x39)
-    {
-        printf(BLU);
-    }
-    // color for alpha
-    else if ((character >= 0x41 && character <= 0x5A) || (character >= 0x61 && character <= 0x7A))
-    {
-        printf(MAG);
-    }
-    else
-    {
-        printf(CYN);
-    }
-}
-
-void resetTerminalColor()
-{
-    printf(RESET);
-}
-
 // display the line of hex, but make it nice
 uint8_t displayLine(uint8_t *line)
 {
     uint8_t strByte[2];
-    uint8_t DataLen = 0;
+    uint8_t dataLen = 0;
 
     printf("%c ", V_LINE);
-
     printf(YEL);
+    
     // byte count
     memcpy(strByte, &line[1], 2);
-    DataLen = strtol(strByte, NULL, 16);
-    printf("%02X", DataLen);
+    dataLen = strtol(strByte, NULL, 16);
+    printf("%02X", dataLen);
 
     // address
     memcpy(strByte, &line[3], 2);
@@ -150,7 +189,7 @@ uint8_t displayLine(uint8_t *line)
     printf("%c ", V_LINE);
 
     // data
-    for (uint8_t i = 9; i < (DataLen * 2) + 8; i = i + 2)
+    for (uint8_t i = 9; i < (dataLen * 2) + 8; i = i + 2)
     {
         memcpy(strByte, &line[i], 2);
         uint8_t character = 0;
@@ -164,7 +203,7 @@ uint8_t displayLine(uint8_t *line)
     }
 
     // fill the rest data empty
-    for (uint8_t i = (DataLen * 2) + 8; i < 40; i = i + 2)
+    for (uint8_t i = (dataLen * 2) + 8; i < 40; i = i + 2)
     {
         memcpy(strByte, &line[i], 2);
         printf("   ", strtol(strByte, NULL, 16));
@@ -182,7 +221,7 @@ uint8_t displayLine(uint8_t *line)
 
     printf(" %c ", V_LINE);
 
-    for (uint8_t i = 9; i < (DataLen * 2) + 8; i = i + 2)
+    for (uint8_t i = 9; i < (dataLen * 2) + 8; i = i + 2)
     {
         memcpy(strByte, &line[i], 2);
         uint8_t character = 0;
@@ -204,7 +243,7 @@ uint8_t displayLine(uint8_t *line)
     }
 
     // fill the rest cahracters empty
-    for (uint8_t i = (DataLen * 2) + 8; i < 40; i = i + 2)
+    for (uint8_t i = (dataLen * 2) + 8; i < 40; i = i + 2)
     {
         memcpy(strByte, &line[i], 2);
         printf("  ", strtol(strByte, NULL, 16));
@@ -215,33 +254,13 @@ uint8_t displayLine(uint8_t *line)
     return OK;
 }
 
-void printTopOfTable()
-{
-    printf("%c", TL_CORNER);
-        for(uint8_t i = 0; i < 101; i++ )
-        {
-            printf("%c", H_LINE);
-        }
-    printf("%c\n", TR_CORNER);
-}
-
-void printBottomOfTable()
-{
-    printf("%c", BL_CORNER);
-        for(uint8_t i = 0; i < 101; i++ )
-        {
-            printf("%c", H_LINE);
-        }
-    printf("%c\n", BR_CORNER);
-}
-
 // reads lines of hex file one by one and display content to terminal
 uint8_t displayContentFromData(struct data *currentData)
 {
     FILE *fptr;
     fptr = fopen(currentData->filepath, "r");
 
-    uint8_t line[45]; // one line should have 44 characters + endline character
+    uint8_t line[45]; // one line should have 45 characters, if I counted correctly 
 
     if (fptr != NULL) {
 
@@ -259,16 +278,6 @@ uint8_t displayContentFromData(struct data *currentData)
     }
 
     return OK;
-}
-
-void Helper_PrintASCI()
-{
-    printf("ASCI HELPER:\n\n");
-    for (uint8_t i = 0; i < 256; i++)
-    {
-        printf("%x-%c  ", i, i);
-    }
-    printf("\n");
 }
 
 // main...
