@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <sys/stat.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 // preparation for coloring
 #define RED   "\x1B[31m"
@@ -32,7 +33,7 @@ enum response
 // struct with data received from call parameters
 struct data
 {
-    char filepath[256];
+    uint8_t filepath[256];
     bool hasStart;
     unsigned long startAddres;
     bool hasEnd;
@@ -40,14 +41,14 @@ struct data
 };
 
 // i was supposed to use this somewhere, but I did not... ¯\_(ツ)_/¯
-bool file_exists(const char *filename)
+bool file_exists(const uint8_t *filename)
 {
     struct stat buffer;
     return stat(filename, &buffer) == 0 ? true : false;
 }
 
 // parse args
-int parseArguments(int argc, char **argv, struct data *currentData)
+uint8_t parseArguments(int argc, uint8_t **argv, struct data *currentData)
 {
     if (argc == 2 && strcmp(argv[1], "-h") == 0)
     {
@@ -67,7 +68,7 @@ int parseArguments(int argc, char **argv, struct data *currentData)
         return NOT_OK;
     }
 
-    for (int i = 1; i < argc; i=i+2 )
+    for (uint8_t i = 1; i < argc; i=i+2 )
     {
         if (strcmp(argv[i], "-f") == 0)
         {
@@ -122,10 +123,10 @@ void resetTerminalColor()
 }
 
 // display the line of hex, but make it nice
-int displayLine(char *line)
+uint8_t displayLine(uint8_t *line)
 {
-    char strByte[2];
-    long int DataLen = 0;
+    uint8_t strByte[2];
+    uint8_t DataLen = 0;
 
     printf("%c ", V_LINE);
 
@@ -149,10 +150,10 @@ int displayLine(char *line)
     printf("%c ", V_LINE);
 
     // data
-    for (int i = 9; i < (DataLen * 2) + 8; i = i + 2)
+    for (uint8_t i = 9; i < (DataLen * 2) + 8; i = i + 2)
     {
         memcpy(strByte, &line[i], 2);
-        long character = 0;
+        uint8_t character = 0;
         character = strtol(strByte, NULL, 16);
 
         setTerminalColor(character);
@@ -163,7 +164,7 @@ int displayLine(char *line)
     }
 
     // fill the rest data empty
-    for (int i = (DataLen * 2) + 8; i < 40; i = i + 2)
+    for (uint8_t i = (DataLen * 2) + 8; i < 40; i = i + 2)
     {
         memcpy(strByte, &line[i], 2);
         printf("   ", strtol(strByte, NULL, 16));
@@ -181,10 +182,10 @@ int displayLine(char *line)
 
     printf(" %c ", V_LINE);
 
-    for (int i = 9; i < (DataLen * 2) + 8; i = i + 2)
+    for (uint8_t i = 9; i < (DataLen * 2) + 8; i = i + 2)
     {
         memcpy(strByte, &line[i], 2);
-        long character = 0;
+        uint8_t character = 0;
         character = strtol(strByte, NULL, 16);
 
         setTerminalColor(character);
@@ -203,7 +204,7 @@ int displayLine(char *line)
     }
 
     // fill the rest cahracters empty
-    for (int i = (DataLen * 2) + 8; i < 40; i = i + 2)
+    for (uint8_t i = (DataLen * 2) + 8; i < 40; i = i + 2)
     {
         memcpy(strByte, &line[i], 2);
         printf("  ", strtol(strByte, NULL, 16));
@@ -217,7 +218,7 @@ int displayLine(char *line)
 void printTopOfTable()
 {
     printf("%c", TL_CORNER);
-        for(int i = 0; i < 101; i++ )
+        for(uint8_t i = 0; i < 101; i++ )
         {
             printf("%c", H_LINE);
         }
@@ -227,7 +228,7 @@ void printTopOfTable()
 void printBottomOfTable()
 {
     printf("%c", BL_CORNER);
-        for(int i = 0; i < 101; i++ )
+        for(uint8_t i = 0; i < 101; i++ )
         {
             printf("%c", H_LINE);
         }
@@ -235,12 +236,12 @@ void printBottomOfTable()
 }
 
 // reads lines of hex file one by one and display content to terminal
-int displayContentFromData(struct data *currentData)
+uint8_t displayContentFromData(struct data *currentData)
 {
     FILE *fptr;
     fptr = fopen(currentData->filepath, "r");
 
-    char line[45]; // one line should have 44 characters + endline character
+    uint8_t line[45]; // one line should have 44 characters + endline character
 
     if (fptr != NULL) {
 
@@ -263,7 +264,7 @@ int displayContentFromData(struct data *currentData)
 void Helper_PrintASCI()
 {
     printf("ASCI HELPER:\n\n");
-    for (int i = 0; i < 256; i++)
+    for (uint8_t i = 0; i < 256; i++)
     {
         printf("%x-%c  ", i, i);
     }
@@ -271,7 +272,7 @@ void Helper_PrintASCI()
 }
 
 // main...
-int main(int argc, char **argv) 
+uint8_t main(uint8_t argc, uint8_t **argv) 
 {
     struct data currentData = {"", false, 0x00, false, 0x00};
 
