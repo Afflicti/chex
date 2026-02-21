@@ -35,9 +35,9 @@ struct data
 {
     uint8_t filepath[256];
     bool hasStart;
-    unsigned long startAddres;
+    uint64_t startAddres;
     bool hasEnd;
-    unsigned long endAddres;
+    uint64_t endAddres;
 };
 
 // i was supposed to use this somewhere, but I did not... ¯\_(ツ)_/¯
@@ -99,7 +99,7 @@ uint8_t parseArguments(int argc, uint8_t **argv, struct data *currentData)
 }
 
 
-void setTerminalColor(long character)
+void setTerminalColor(uint8_t character)
 {
     // color for numbers
     if (character >= 0x30 && character <= 0x39)
@@ -285,8 +285,6 @@ uint8_t main(uint8_t argc, uint8_t **argv)
     {
         return 0;
     }
-
-    //Helper_PrintASCI();
     
     return 0;
 }

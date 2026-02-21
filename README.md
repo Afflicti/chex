@@ -13,9 +13,9 @@ You can read something about intel hex file [here](https://en.wikipedia.org/wiki
 
 I use gcc, so I do it like this:
 
-> gcc .\src\main.c -o .\bin\chex
+`gcc .\src\main.c -o .\bin\chex`
 
-> .\bin\chex.exe -f demo.hex
+`.\bin\chex.exe -f demo.hex`
 
 
 ## todo:
